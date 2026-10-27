@@ -1,0 +1,9 @@
+{
+  "description": "Operator-controlled golden fixture hashes. Do not regenerate in harness workspace.",
+  "sha256": {
+    "DESIGN.md": "7e1f29e8c2c87ea289e0c2298a772313691fed6cba963e1d777cd1830fe8229f",
+    "tests/golden/conftest.py": "476ef71a2f1fe1b5d8d8c9c7b34b05e83b3499972598aa940f5157441c5af4be",
+    "tests/golden/test_acceptance.py": "16cd06eb567e2823962b43240109db91a8dfc75cbd78123f1a561226fde5c3c0",
+    "pyproject.toml": "6054cb2d5b1fe4774d0c489fd89e45f9b4279e47f2fd0cfb9519d8701c8f1243"
+  }
+}
