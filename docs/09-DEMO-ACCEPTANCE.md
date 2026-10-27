@@ -17,7 +17,9 @@ This is a **new public demo scenario description**. Business-specific values bel
 - **AC-005:** successful change generates an audit record with actor, profile, changed fields and timestamp, without logging contact field values.
 - **AC-006:** unexpected data-store failure returns a bounded server error without stack trace or secrets in response.
 
-**Open business choices:** exact paths, field schema, error codes, whether phone/email are both mandatory, audit retention, data store, authentication design.
+**Milestone 1 fixture decisions:** [ADR-012 S1](13-HARNESS-SPIKE-CONTRACT.md#s1--scenario-and-reference-stack-q-02-q-03-q-05) fixes the path, optional fields with at least one supplied, validation/error responses, SQLite storage, atomic value-free audit and synthetic test-only identities. S6 fixes spike evidence retention; fixture data is ephemeral. These are experiment decisions, not a production authentication/business-data retention policy.
+
+The spike starts with this existing synthetic API and an intentional AC-003 failure, then exports a verified repair patch with frozen tests. It does not need the entire ten-step product UI/workflow below. All six ACs still require real final passing evidence. Full intake/decomposition, generated-test quality, durable workflow and dashboard acceptance remain later milestones.
 
 ## Demo sequence
 

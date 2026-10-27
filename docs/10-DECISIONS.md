@@ -15,6 +15,13 @@ The records below are **proposals** until reviewed and assigned ACCEPTED status.
 | ADR-009 | Repo output | OPEN | local patch/branch versus GitHub PR integration |
 | ADR-010 | Auth/model/provider | OPEN | provider, credentials, roles and budget |
 | ADR-011 | Licensing | OPEN | select project license with third-party obligations review |
+| ADR-012 | Harness spike contract | PROPOSED — spike-only resolutions | [fixed synthetic repair scenario, local patch, external controls, evidence and preflight](13-HARNESS-SPIKE-CONTRACT.md); 14 scoped answers, no harness winner |
+
+## ADR-012 scope and review
+
+**Date:** 2026-10-27. **Accountable roles:** repository maintainer (acceptance), assigned spike operator (execution/evidence); no named assignment or approval is fabricated. The [full record](13-HARNESS-SPIKE-CONTRACT.md) contains context, alternatives, decisions, consequences, preflight, output requirements and reversal rules.
+
+It resolves planning inputs for Milestone 1 only, effective when this PR is accepted. Related ADR-003/004/005/007/009/010 proposals are constrained for this experiment, not globally ACCEPTED. ADR-001 remains PROPOSED pending executable comparison; ADR-008 and productivity benchmarking are deferred; ADR-011 remains OPEN. Required implementation evidence in the decision process below still applies to infrastructure adoption. No spike execution or measured runtime/security success is claimed by ADR-012.
 
 ## Decision process
 

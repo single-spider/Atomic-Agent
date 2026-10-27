@@ -1,28 +1,32 @@
 # Open questions and clarification register
 
-**Status:** Open unless marked otherwise. Assign owners and resolutions through issues/ADRs. These questions are intentionally visible rather than disguised as requirements.
+**Reviewed:** 2026-10-27 against the complete documentation baseline. **Decision record:** [ADR-012 / harness spike contract](13-HARNESS-SPIKE-CONTRACT.md).
 
-| ID | Question | Impact | Suggested next action |
+**Status semantics:** **SPIKE-RESOLVED** is an explicit bounded decision proposed in this PR, effective on maintainer acceptance, not a global MVP/production approval or implemented control. **OPEN — EXPERIMENT** needs measurements. **DEFERRED** does not block Milestone 1 under its stated boundary. **OPEN — OWNER** needs a maintainer decision; its preflight restriction still applies. Role owners are responsibilities, not invented assignments to named people.
+
+| ID | Question | Spike disposition and rationale | Accountable role / follow-up |
 | --- | --- | --- | --- |
-| Q-01 | Which harness should power code execution? | adapter/session model | run candidate spike |
-| Q-02 | Greenfield generation, existing repo edits, or both in MVP? | scope and fixtures | choose target scenario |
-| Q-03 | Exact supported language/framework for demo? | toolchain | select one reference stack |
-| Q-04 | What approvals require distinct identities? | identity/security | define MVP roles |
-| Q-05 | Are changes returned as patch, branch, or PR? | Git integration | pick minimum testable output |
-| Q-06 | Which scanner set and severity thresholds are mandatory? | release policy | approve security policy |
-| Q-07 | What minimum acceptable AC-to-test coverage applies? | traceability gate | choose measurable rule |
-| Q-08 | Which model/provider and budget can be used? | cost, privacy, reproducibility | set configuration requirements |
-| Q-09 | What network egress does code execution need? | sandbox threat model | allowlist by fixture |
-| Q-10 | How are artifacts and logs retained/redacted? | privacy/storage | define retention policy |
-| Q-11 | React dashboard or Streamlit prototype? | build effort/UX | prototype critical screens |
-| Q-12 | Does a conditional release require waiver approval? | governance | model exceptions |
-| Q-13 | Should reviewers approve an AI-generated remediation before it is applied in sandbox? | human control | set approval policy |
-| Q-14 | How are dependency installs and model skills sourced? | supply-chain risk | pin/check revisions |
-| Q-15 | What benchmark would substantiate productivity improvement? | claims/evaluation | define baseline methodology |
-| Q-16 | What is the project license and contributor policy? | redistribution | decide before copying code |
-| Q-17 | Are generated artifacts allowed to include private repository content? | data handling | define data boundary |
-| Q-18 | Who owns release recommendation versus branch merge authority? | accountability | document role mapping |
+| Q-01 | Which harness should power code execution? | **OPEN — EXPERIMENT.** Compare two eligible runtimes on identical inputs and hard blockers; no winner from docs alone. [S4/S7](13-HARNESS-SPIKE-CONTRACT.md#s4--model-fairness-and-resource-limits-q-08). | Spike operator records results; maintainer accepts ADR-001, including no winner if necessary. |
+| Q-02 | Greenfield generation, existing repo edits, or both in MVP? | **SPIKE-RESOLVED.** Existing synthetic repo repair only; greenfield/arbitrary repos outside experiment. [S1](13-HARNESS-SPIKE-CONTRACT.md#s1--scenario-and-reference-stack-q-02-q-03-q-05). | Maintainer approves fixture scope; revisit broader MVP intake after spike. |
+| Q-03 | Exact supported language/framework for demo? | **SPIKE-RESOLVED.** Python 3.12/FastAPI/Pydantic/SQLite, Pytest/HTTPX and pinned tools. Exact patch/dependency/image pins required before runs. [S1](13-HARNESS-SPIKE-CONTRACT.md#s1--scenario-and-reference-stack-q-02-q-03-q-05). | Operator freezes identical target stack; no multi-language claim. |
+| Q-04 | What approvals require distinct identities? | **SPIKE-RESOLVED.** One named local human may hold distinct recorded roles; agents cannot approve. Hash-bound design and final human decisions; no two-person/production identity claim. [S2](13-HARNESS-SPIKE-CONTRACT.md#s2--approval-and-authority-q-04-q-12-q-13-q-18). | Maintainer assigns operator; production role separation remains future policy. |
+| Q-05 | Are changes returned as patch, branch, or PR? | **SPIKE-RESOLVED.** Patch plus base/result hashes and paths, verified on fresh base. No remote writes or Git credential for coding agent. [S1](13-HARNESS-SPIKE-CONTRACT.md#s1--scenario-and-reference-stack-q-02-q-03-q-05). | Operator implements export; reconsider remote integration after spike. |
+| Q-06 | Which scanner set and severity thresholds are mandatory? | **SPIKE-RESOLVED.** Ruff, Bandit, locked dependency audit and deterministic secret/canary checks; explicit blocking rules, missing/stale evidence fails closed. [S3](13-HARNESS-SPIKE-CONTRACT.md#s3--deterministic-evidence-and-blocking-rules-q-06-q-07). | Operator pins tools/rules; maintainer reviews policy. |
+| Q-07 | What minimum acceptable AC-to-test coverage applies? | **SPIKE-RESOLVED.** 100% of six mandatory ACs mapped to executed passing golden tests on final revision; no skip/xfail substitutions, no numeric code-coverage target. [S3](13-HARNESS-SPIKE-CONTRACT.md#s3--deterministic-evidence-and-blocking-rules-q-06-q-07). | Operator supplies mappings and JUnit evidence. |
+| Q-08 | Which model/provider and budget can be used? | **SPIKE-RESOLVED (configuration contract).** Same approved model/provider/settings for both; USD 5/candidate, USD 10 total ceilings, bounded steps/time/repairs. No spend/data-transfer authorization implied; missing config blocks calls. [S4](13-HARNESS-SPIKE-CONTRACT.md#s4--model-fairness-and-resource-limits-q-08). | Operator supplies approved exact model, prices and credentials before execution; no provider selected here. |
+| Q-09 | What network egress does code execution need? | **SPIKE-RESOLVED.** None. Trusted model gateway and separately reviewed package/advisory bootstrap only; app/test/repair sandbox offline. [S5](13-HARNESS-SPIKE-CONTRACT.md#s5--network-dependencies-and-skills-q-09-q-14). | Operator proves egress and filesystem denials. |
+| Q-10 | How are artifacts and logs retained/redacted? | **SPIKE-RESOLVED.** Redact before persistence; operator-only unsynced local evidence for 14 days; ephemeral workspace cleanup; reviewed sanitized public exports with Git-history caveat. [S6](13-HARNESS-SPIKE-CONTRACT.md#s6--data-boundary-and-retention-q-10-q-17). | Operator owns redaction, cleanup and deletion receipts. |
+| Q-11 | React dashboard or Streamlit prototype? | **DEFERRED.** Headless driver/evidence files suffice; UI adds no adapter feasibility evidence. | Maintainer revisits ADR-008 for Milestone 6. |
+| Q-12 | Does a conditional release require waiver approval? | **SPIKE-RESOLVED.** No waivers/CONDITIONAL path; exception requests go to MANUAL REVIEW, never PASS. [S2](13-HARNESS-SPIKE-CONTRACT.md#s2--approval-and-authority-q-04-q-12-q-13-q-18). | Maintainer defines future waiver authority, expiry and rules before enabling conditional releases. |
+| Q-13 | Should reviewers approve an AI-generated remediation before it is applied in sandbox? | **SPIKE-RESOLVED.** No per-patch approval inside approved design/path scope, max two repairs; design/scope/dependency/test/policy changes stop for approval. [S2](13-HARNESS-SPIKE-CONTRACT.md#s2--approval-and-authority-q-04-q-12-q-13-q-18). | Operator approves scope; control plane enforces boundaries/counters. |
+| Q-14 | How are dependency installs and model skills sourced? | **SPIKE-RESOLVED.** Reviewed hash-locked bootstrap, pinned runtime/skill revisions, license/notice inventory; no agent installs or dynamic external skills/plugins. [S5](13-HARNESS-SPIKE-CONTRACT.md#s5--network-dependencies-and-skills-q-09-q-14). | Operator records provenance; maintainer approves additions. |
+| Q-15 | What benchmark would substantiate productivity improvement? | **DEFERRED.** Report feasibility, elapsed/setup time and cost, not productivity gains or statistical superiority. | Evaluation owner defines controlled baseline before quantified productivity claims. |
+| Q-16 | What is the project license and contributor policy? | **OPEN — OWNER.** No invented license grant. Independent scripts/fixtures plus external dependency use after exact-version review; no copied/vendor code or image redistribution. Project license required before external code reuse/distribution. [S5/S7](13-HARNESS-SPIKE-CONTRACT.md#s5--network-dependencies-and-skills-q-09-q-14). | Maintainer decides ADR-011; operator records third-party obligations at preflight. |
+| Q-17 | Are generated artifacts allowed to include private repository content? | **SPIKE-RESOLVED.** No private/confidential/customer content; synthetic/authorized redistributable inputs only. Provider data policy separately approved. [S6](13-HARNESS-SPIKE-CONTRACT.md#s6--data-boundary-and-retention-q-10-q-17). | Maintainer approves new data policy before expanding boundary. |
+| Q-18 | Who owns release recommendation versus branch merge authority? | **SPIKE-RESOLVED.** Deterministic control-plane gates, explanatory release agent, human final decision; maintainer alone authorizes eventual merge, no agent merge permission. [S2](13-HARNESS-SPIKE-CONTRACT.md#s2--approval-and-authority-q-04-q-12-q-13-q-18). | Operator reviews evidence; maintainer retains merge authority. |
 
-## Provisional defaults only
+## Readiness summary
 
-For a rapid demo, assume one user, one repository, Python/FastAPI target, manual merge, local storage, and limited remediation iterations. These defaults are **not approvals**; retain the ability to change them after the harness spike.
+**14 spike-only resolutions; one experiment-open harness choice; two deferred product/evaluation choices; one owner-open licensing choice.** Decisions remove design ambiguity, not execution preflight. Operator must still supply exact pins, fixture/tests, model/data/spend approval and enforceable sandbox/budget controls. Next is the executable spike, not an assertion the runtime/full MVP works.
+
+Previous rapid-demo defaults were provisional. ADR-012 replaces them for Milestone 1 only; broader product proposals remain unapproved unless separately accepted.

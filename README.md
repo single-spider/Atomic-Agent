@@ -26,11 +26,13 @@ Start here in order:
 12. [Open questions](docs/11-QUESTIONS.md): decisions that require explicit resolution.
 13. [Testing and observability](docs/12-TESTING-OBSERVABILITY.md): platform tests and run evidence.
 14. [Contributing](CONTRIBUTING.md): branch, review, and merge expectations.
+15. [Harness spike contract / ADR-012](docs/13-HARNESS-SPIKE-CONTRACT.md): scoped decisions, fixture, controls, preflight and comparison evidence.
 
 ## Current status
 
 - Documentation baseline: **proposed**, subject to maintainer review.
 - Harness selection: **open**; benchmark candidates before adopting one.
+- Spike planning: **14 scoped resolutions proposed** in ADR-012; runtime selection, UI, productivity baseline and project licensing have explicit remaining dispositions. Exact provider/version pins and execution authorization remain preflight requirements.
 - MVP backend, UI, test tools, and storage: **proposed**, not yet implemented.
 - Production deployment: **out of scope** for the initial demo.
 

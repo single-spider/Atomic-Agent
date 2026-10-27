@@ -12,7 +12,9 @@ Exit: documentation is internally consistent; open decisions are visible; no imp
 
 **PR 002:** prove adapter feasibility on one local reference repository using two candidate runtimes. Include reproducible scripts, evaluation scores and an ADR selecting a harness or explaining no winner.
 
-Exit: a specialized coding task runs isolated, exports diff and execution events, can be cancelled, and executes one real test with stored result.
+Prerequisite: accept [ADR-012 / spike contract](13-HARNESS-SPIKE-CONTRACT.md), assign operator and complete its model/version/license/security preflight. See the [18-question disposition](11-QUESTIONS.md); UI and productivity claims do not block this milestone, and no provider/spending approval is inferred.
+
+Exit: report all eight harness evaluation steps and ADR-012 hard-blocker outcomes for two candidates (or documented ineligibility), patch reapplication, real AC-003 failure/repair, all final mandatory checks and 100% AC mapping, cancellation, external approval/permission/budget enforcement, and redacted reproducible evidence. Record winner or no winner in ADR-001. Experiment completion is not candidate success or full MVP acceptance; no measured results exist in this planning PR.
 
 ## Milestone 2 — Run/artifact/control-plane skeleton
 

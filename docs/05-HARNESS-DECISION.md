@@ -2,6 +2,8 @@
 
 **Status:** Proposed evaluation, no winner selected.
 
+**Experiment inputs:** [ADR-012 / spike contract](13-HARNESS-SPIKE-CONTRACT.md) resolves the scope and control ambiguities in the [register](11-QUESTIONS.md). Once accepted, apply it before running candidates; it does not decide the winner or prove any runtime safe.
+
 ## Decision statement
 
 Select an open-source harness/runtime for model interaction, tool calls, coding workspaces, and agent execution without turning Atomic-Agent's gate policy or artifact system into harness-specific code. Choose by a reproducible spike and record an ADR.
@@ -17,6 +19,8 @@ Select an open-source harness/runtime for model interaction, tool calls, coding 
 
 Repositories are research links, not endorsements or integration commitments. Confirm licenses, versions, maintenance, and security posture again at implementation time.
 
+For the first comparison, preflight DeepSeek Harness and OpenHands Software Agent SDK. Retain Harness² as a complementary optimization study; document any fallback to a command-based adapter. Exact revision/license/model compatibility and enforcement controls must be checked before execution. No comparable setup or no eligible runtime is a valid no-winner result, not permission to weaken policy.
+
 ## Evaluation criteria (100-point proposal)
 
 - 20: controllable execution, typed/tool APIs, resumable/cancellable sessions
@@ -31,6 +35,8 @@ Score 0–5 on each category, calculate weighted score. Minimum blockers regardl
 
 ## Required spike
 
+Use the existing synthetic ownership-repair fixture, frozen golden tests, local patch output, model/budget manifest and offline app sandbox in ADR-012. The headless spike driver need only exercise the approval/validation boundary, not implement the full product workflow or dashboard.
+
 On identical fixture codebase and feature request, for each eligible candidate:
 
 1. Create isolated session and inject one specialized developer skill.
@@ -43,6 +49,8 @@ On identical fixture codebase and feature request, for each eligible candidate:
 8. Verify that an orchestrator-controlled approval pause cannot be bypassed by agent text.
 
 Record exact version, configuration, model, scenario, outcomes, measurements, failures, and reproduction steps.
+
+Completion also requires all final mandatory checks, patch reapplication on a clean base, 100% AC-to-passing-test evidence, external budget/approval/path/egress/cancel probes and reviewed redacted exports per ADR-012. Unexecuted checks cannot earn scores or be reported as passing. Apply hard blockers before weighted scoring; one run per candidate substantiates feasibility only, not productivity gains.
 
 ## Decision outcome template
 

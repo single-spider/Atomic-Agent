@@ -52,7 +52,7 @@ Illustrative values only. A readiness check queries the graph and verifies the s
 - On code revision change, mark all revision-dependent validations stale. Preserve their historical records.
 - Approval references a content hash; mutations require renewed approval when policy says so.
 - Findings and waivers are durable objects with state history.
-- Artifact retention, privacy, and export rules require explicit decisions before multi-user usage.
+- For Milestone 1, [ADR-012 S6](13-HARNESS-SPIKE-CONTRACT.md#s6--data-boundary-and-retention-q-10-q-17) defines redaction-before-persistence, 14-day local evidence retention, ephemeral cleanup and sanitized-public-export boundaries. Multi-user/private-source retention and export policy remain undecided.
 
 ## Storage/API guidance
 

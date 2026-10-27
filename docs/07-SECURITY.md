@@ -2,6 +2,8 @@
 
 **Status:** Initial threat model proposal. Must be implemented and tested before executing untrusted code.
 
+**Spike policy:** [ADR-012 S2–S6](13-HARNESS-SPIKE-CONTRACT.md) narrows this baseline: no app/test/repair egress, reviewed bootstrap only, trusted model access separated from execution, pinned dependencies/skills, no waivers, and synthetic-only inputs. Exact scanner thresholds, retention and preflight denial tests are specified there; this document does not itself establish that controls work.
+
 ## Threat surfaces
 
 User-provided requirements, repositories, dependency install scripts, tool output, test artifacts, prompts, generated code, agents and third-party harness integrations are **untrusted inputs**. An instruction discovered inside source code or test output is data; it must not expand the agent's authority.

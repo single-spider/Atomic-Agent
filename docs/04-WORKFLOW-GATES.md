@@ -2,6 +2,8 @@
 
 **Status:** Proposed. The policy engine is deterministic and versioned.
 
+**Milestone 1 overlay:** [ADR-012](13-HARNESS-SPIKE-CONTRACT.md) defines the spike's exact mandatory tools, 100% AC mapping, single-operator role records, bounded in-scope repairs and hash-bound approvals. No waivers/CONDITIONAL path is enabled in the spike. The workflow below remains the broader product proposal, not a requirement to implement every stage before comparing harnesses.
+
 ## States
 
     DRAFT -> ANALYZING -> REQUIREMENTS_REVIEW
