@@ -56,15 +56,17 @@ Each acceptance criterion has: ID, requirement_id, testable statement, verificat
 
 See [workflow policy](04-WORKFLOW-GATES.md) for proposed transitions and exact blocking behavior.
 
-## Requirement questions requiring decisions
+## Requirement decisions and remaining scope
 
-1. Does MVP accept new greenfield apps, existing codebases, or both?
-2. Which languages/frameworks must actually run in the demo?
-3. Are API specs generated in OpenAPI format, and must they be validated?
-4. What test coverage thresholds, if any, are mandatory?
-5. Can medium-severity security findings be conditionally accepted, by whom, and for how long?
-6. Is the output a Git diff, local branch, or GitHub pull request?
-7. Which roles may approve design and release?
-8. Is external network access needed by generated code during validation?
+The [ADR-012 spike contract](13-HARNESS-SPIKE-CONTRACT.md) proposes bounded answers for Milestone 1, effective on maintainer acceptance; it does not finalize the entire MVP:
 
-All unresolved items remain explicit in [open questions](11-QUESTIONS.md).
+1. Existing synthetic repository repair only; broader intake/greenfield support deferred.
+2. Python 3.12/FastAPI/Pydantic/SQLite target, exact versions pinned at preflight.
+3. Fixture OpenAPI defines responses and is validated by a deterministic test; generalized spec generation is later work.
+4. 100% mandatory AC-to-executed-passing-test mapping; no numeric code-coverage threshold.
+5. No conditional releases/waivers in spike; visible nonblocking residual findings follow S3, dependency vulnerabilities always block.
+6. Reproducible patch plus base/result hashes; no remote Git writes by coding agents.
+7. One named human can hold separate recorded roles; agents cannot approve; design and final evidence approvals are hash-bound.
+8. No sandbox egress; reviewed bootstrap and trusted model access are separate.
+
+Every original question and its follow-up remains tracked in the [clarification register](11-QUESTIONS.md).

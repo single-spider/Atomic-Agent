@@ -2,6 +2,8 @@
 
 **Status:** Proposed system test strategy.
 
+**Milestone 1:** [ADR-012](13-HARNESS-SPIKE-CONTRACT.md) defines the frozen synthetic repair fixture, six mandatory AC mappings, exact check/blocking policy, clean-base patch verification, external-control probes and evidence retention. Use reviewed golden tests for harness comparison; generated-test usefulness and the complete platform pyramid remain later product evaluations.
+
 ## Testing pyramid
 
 - **Unit:** JSON/schema validation, requirement parsing helpers, ID linking, gate rule evaluation, severity normalization, state transition legality, retry budgets, hash-based approval invalidation.
