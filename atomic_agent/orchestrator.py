@@ -10,6 +10,7 @@ from typing import Any
 from .agents import HarnessAdapter, NoHarness, invoke
 from .core import Store, WorkflowError
 from .runner import DockerRunner
+from .integrity import verify_source_revision, verify_frozen_inputs
 from spike.policy import validate_candidate_paths
 
 
@@ -72,7 +73,8 @@ class Orchestrator:
         response=invoke(self.harness,"release_assurance",{"run_id":run_id,"assessment":assessment})
         return str(response["summary"])
 
-    def validate_in_docker(self, run_id: str, *, image: str, workspace: str | Path, revision: str) -> dict:
+    def validate_in_docker(self, run_id: str, *, image: str, workspace: str | Path, revision: str,
+                           frozen_hashes: dict[str,str]) -> dict:
         """Run fixed tools. Requires separate trusted preflight and image preparation.
 
         This does not provide all mandatory tools; dependency audit and secret
@@ -81,6 +83,8 @@ class Orchestrator:
         snap=self.store.snapshot(run_id)
         if snap["stage"]!="VALIDATING":
             raise WorkflowError("code must be submitted before validation")
+        verify_source_revision(Path(workspace), revision)
+        verify_frozen_inputs(Path(workspace), frozen_hashes)
         runner=DockerRunner(image,workspace)
         results={}
         for tool in ("pytest","ruff","bandit"):

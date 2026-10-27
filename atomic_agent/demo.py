@@ -40,7 +40,9 @@ def reference_repair(workspace: Path) -> None:
 
 
 def record(workflow: Orchestrator, run_id: str, workspace: Path, image: str, revision: str) -> dict:
-    return workflow.validate_in_docker(run_id,image=image,workspace=workspace,revision=revision)
+    manifest=json.loads((FIXTURE/"FROZEN.json").read_text(encoding="utf-8"))["sha256"]
+    return workflow.validate_in_docker(run_id,image=image,workspace=workspace,revision=revision,
+                                       frozen_hashes=manifest)
 
 
 def run_fixture_demo(image: str, operator: str, *, design_approved: bool) -> dict:
