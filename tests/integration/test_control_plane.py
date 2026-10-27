@@ -35,6 +35,8 @@ def report(tool, ac=None):
 
 
 def fill(store, run):
+    for criterion in ('AC-001','AC-003'):
+        store.link_acceptance(run,criterion,'app/main.py','reviewer')
     for tool in ("pytest","ruff","bandit","dependency_audit","secrets"):
         store.record_evidence(run,tool,"revision-123456",status="COMPLETED",exit_code=0,parsed=True,report=report(tool),trusted_runner=True)
 
@@ -125,3 +127,26 @@ def test_remediation_records_attempts_and_invalidation(tmp_path):
     assessment=s.assess(run)
     assert assessment["status"]=="NOT_READY"
     assert any("current-revision" in problem for problem in assessment["problems"])
+
+
+def test_missing_traceability_blocks_release_even_if_tests_pass(tmp_path):
+    s=Store(tmp_path/'traces.db'); run=code_ready(s)
+    for tool in ('pytest','ruff','bandit','dependency_audit','secrets'):
+        s.record_evidence(run,tool,'revision-123456',status='COMPLETED',exit_code=0,
+                          parsed=True,report=report(tool),trusted_runner=True)
+    value=s.assess(run)
+    assert value['status']=='NOT_READY'
+    assert any('code mappings' in x for x in value['problems'])
+
+
+def test_reviewed_trace_mapping_is_revision_sensitive(tmp_path):
+    s=Store(tmp_path/'traces.db'); run=code_ready(s)
+    link=s.link_acceptance(run,'AC-001','app/main.py','reviewer')
+    result=s.traceability(run)
+    assert result['current_covered_ac_ids']==['AC-001']
+    assert result['unmapped_ac_ids']==['AC-003']
+    with pytest.raises(WorkflowError,match='changed source path'):
+        s.link_acceptance(run,'AC-003','../../etc/passwd','reviewer')
+    s.start_remediation(run,'fix 1',trusted_orchestrator=True)
+    s.add_artifact(run,'code',{'paths':['app/main.py']},revision='revision-changed-234567')
+    assert s.traceability(run)['current_covered_ac_ids']==[]

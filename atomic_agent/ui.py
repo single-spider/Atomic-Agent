@@ -35,6 +35,9 @@ footer{color:#8ea7c7;text-align:center;font-size:12px;padding:24px}
 <section><h2>Submit reviewable artifact</h2><label for="kind">SDLC artifact</label><select id="kind"><option>requirements</option><option>stories</option><option>criteria</option><option>design</option><option>code</option></select>
 <label for="body">Artifact JSON (proposal)</label><textarea id="body">{"functional":["Update only the requester's profile"]}</textarea><label for="revision">Code revision (code artifact only)</label><input id="revision" placeholder="Verified Git commit / worktree hash"><div class="buttons"><button id="submit">Save artifact</button><button id="approve">Approve current stage</button><button id="assess">Evaluate release gates</button></div><div class="buttons"><button id="analyze">Agent: Analyze</button><button id="design">Agent: Design</button><button id="tests">Agent: Propose tests</button></div><small>Agent-generated proposals require human review. Validation passes only on real trusted tool evidence.</small></section>
 <section><h2>Artifact versions</h2><div id="artifacts"><small>None loaded.</small></div></section>
+<section><h2>Human-reviewed traceability</h2><p><small>Link each mandatory acceptance criterion to a changed code path on the current revision.</small></p>
+<label for="ac">Acceptance criterion</label><input id="ac" placeholder="AC-001"><label for="path">Changed file path</label><input id="path" value="app/main.py">
+<div class="buttons"><button id="link">Approve AC → code link</button><button id="trace">View traceability</button></div><pre id="trace_output" class="mono"></pre></section>
 <section><h2>Workflow events</h2><div id="timeline" class="timeline"><small>None loaded.</small></div></section>
 </div></main><footer>Local prototype · No anonymous approvals · No trusted tool-results upload API</footer>
 <script>
@@ -64,5 +67,9 @@ await call('/runs/'+E('runid').value+'/approvals','POST',{kind,actor:E('actor').
 E('analyze').onclick=handle(async()=>{await call('/runs/'+E('runid').value+'/agent/analyze','POST');await refresh()});
 E('design').onclick=handle(async()=>{await call('/runs/'+E('runid').value+'/agent/design','POST');await refresh()});
 E('tests').onclick=handle(async()=>{const v=await call('/runs/'+E('runid').value+'/agent/propose-tests','POST');msg('Generated test proposals: '+JSON.stringify(v.proposals))});
+E('link').onclick=handle(async()=>{await call('/runs/'+E('runid').value+'/traceability','POST',
+{ac_id:E('ac').value,file_path:E('path').value});await refresh();msg('Traceability link recorded')});
+E('trace').onclick=handle(async()=>{const t=await call('/runs/'+E('runid').value+'/traceability');
+E('trace_output').textContent=JSON.stringify({revision:t.revision,covered:t.current_covered_ac_ids,unmapped:t.unmapped_ac_ids},null,2)});
 E('assess').onclick=handle(async()=>{const r=await call('/runs/'+E('runid').value+'/assess','POST');await refresh();msg(r.status+' · '+(r.problems.length?r.problems.join('; '):'Mandatory gates passed'))});
 </script></body></html>'''
