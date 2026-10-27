@@ -1,0 +1,32 @@
+{
+  "operator": "",
+  "contract_sha256": "",
+  "design_sha256": "",
+  "policy_sha256": "",
+  "fixture_lock_sha256": "",
+  "design_approval": {
+    "actor": "",
+    "role": "design-approver",
+    "approved": false,
+    "design_sha256": "",
+    "policy_sha256": "",
+    "writable_paths": ["app/main.py"]
+  },
+  "model": {
+    "provider": "",
+    "model_id": "",
+    "version_or_alias": "",
+    "pricing_manifest_sha256": "",
+    "data_transfer_approved": false,
+    "spend_approved": false
+  },
+  "controls": {
+    "sandbox_image_digest": "",
+    "egress_probe_sha256": "",
+    "path_probe_sha256": "",
+    "cancel_probe_sha256": "",
+    "budget_probe_sha256": "",
+    "redaction_probe_sha256": "",
+    "trusted_dependency_audit_sha256": ""
+  }
+}
