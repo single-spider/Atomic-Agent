@@ -72,6 +72,10 @@ def run_fixture_demo(image: str, operator: str, *, design_approved: bool) -> dic
         reference_repair(workspace)
         revised=source_sha(workspace)
         store.add_artifact(run_id,"code",{"changed_paths":["app/main.py"],"kind":"deterministic reference patch, not AI"},revision=revised)
+        # Synthetic fixtures have one intentionally tiny source file. The named
+        # test operator records reviewer-approved AC->path links for this demo.
+        for i in range(1,7):
+            store.link_acceptance(run_id,f"AC-{i:03}","app/main.py",operator)
         tools=record(workflow,run_id,workspace,image,revised)
         final_pytest=tools["pytest"]
         if (final_pytest["status"]!="COMPLETED" or not final_pytest["parsed"]):

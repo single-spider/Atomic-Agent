@@ -71,6 +71,11 @@ class Store:
                     exit_code INTEGER NOT NULL, parsed INTEGER NOT NULL,
                     report_json TEXT NOT NULL, report_hash TEXT NOT NULL, created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS trace_links (
+                    id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id),
+                    ac_id TEXT NOT NULL, revision TEXT NOT NULL, file_path TEXT NOT NULL,
+                    approved_by TEXT NOT NULL, created_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS remediations (
                     id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id),
                     source_revision TEXT NOT NULL, reason TEXT NOT NULL,
@@ -243,6 +248,51 @@ class Store:
             self._event(db,run_id,"FindingRecorded",{"id":fid,"severity":severity,"revision":revision})
         return fid
 
+    def link_acceptance(self, run_id: str, ac_id: str, file_path: str,
+                        actor: str) -> str:
+        """Record a human-reviewed criterion -> exact code-revision path link."""
+        if not actor.strip() or not ac_id.strip() or not file_path.strip():
+            raise WorkflowError("trace link requires an AC, changed path, and named reviewer")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            if self._run(db,run_id)["stage"]!="VALIDATING":
+                raise WorkflowError("trace link only permitted during validation")
+            code=self.latest(db,run_id,"code")
+            criteria=self.latest(db,run_id,"criteria")
+            if not code or not criteria:
+                raise WorkflowError("code and acceptance criteria required")
+            ac_list=json.loads(criteria["body"])
+            if not isinstance(ac_list,list) or ac_id not in [x.get("id") for x in ac_list if isinstance(x,dict)]:
+                raise WorkflowError("unknown acceptance criterion")
+            code_data=json.loads(code["body"])
+            if not isinstance(code_data,dict):
+                raise WorkflowError("invalid code artifact")
+            allowed=code_data.get("changed_paths",code_data.get("paths",[]))
+            if not isinstance(allowed,list) or file_path not in allowed or file_path.startswith("/") or ".." in file_path.split("/"):
+                raise WorkflowError("link file must be a changed source path")
+            rid=uuid.uuid4().hex
+            db.execute("INSERT INTO trace_links(id,run_id,ac_id,revision,file_path,approved_by,created_at) "
+                       "VALUES(?,?,?,?,?,?,?)",(rid,run_id,ac_id,code["revision"],file_path,actor,now()))
+            self._event(db,run_id,"TraceLinkApproved",{"ac_id":ac_id,"revision":code["revision"],
+                                                        "path":file_path,"actor":actor})
+            return rid
+
+    def traceability(self, run_id: str) -> dict:
+        with self._connect() as db:
+            self._run(db,run_id)
+            code=self.latest(db,run_id,"code")
+            criteria=self.latest(db,run_id,"criteria")
+            ac_list=json.loads(criteria["body"]) if criteria else []
+            revision=code["revision"] if code else None
+            rows=db.execute("SELECT id,ac_id,revision,file_path,approved_by,created_at "
+                            "FROM trace_links WHERE run_id=? ORDER BY rowid",(run_id,)).fetchall()
+            links=[dict(r) for r in rows]
+            live=[link for link in links if link["revision"]==revision]
+            mandatory={a["id"] for a in ac_list if isinstance(a,dict) and isinstance(a.get("id"),str)}
+            mapped={link["ac_id"] for link in live}
+            return {"revision":revision,"criteria":sorted(mandatory),"links":links,
+                    "current_covered_ac_ids":sorted(mapped),"unmapped_ac_ids":sorted(mandatory-mapped)}
+
     def _gate(self, db: sqlite3.Connection, run_id: str) -> dict:
         code=self.latest(db,run_id,"code")
         revision=code["revision"] if code else None
@@ -289,6 +339,11 @@ class Store:
                     problems.append("bandit: unknown severity")
         if ac_ids and not set(ac_ids).issubset(set(tests)):
             problems.append("mandatory acceptance criteria lack passing test evidence")
+        links=db.execute("SELECT DISTINCT ac_id FROM trace_links WHERE run_id=? AND revision=?",
+                         (run_id,revision)).fetchall()
+        mapped={row["ac_id"] for row in links}
+        if ac_ids and not set(ac_ids).issubset(mapped):
+            problems.append("mandatory acceptance criteria lack reviewer-approved code mappings")
         blockers=db.execute("SELECT id,severity FROM findings WHERE run_id=? AND revision=? AND status='OPEN'",
                             (run_id,revision)).fetchall()
         for finding in blockers:
@@ -318,10 +373,12 @@ class Store:
             approvals=db.execute("SELECT kind,actor,artifact_hash,decision,created_at FROM approvals WHERE run_id=? ORDER BY rowid",(run_id,)).fetchall()
             events=db.execute("SELECT seq,type,payload_json,created_at FROM events WHERE run_id=? ORDER BY seq",(run_id,)).fetchall()
             evidence=db.execute("SELECT id,tool,revision,status,exit_code,parsed,report_hash,created_at FROM evidence WHERE run_id=? ORDER BY rowid",(run_id,)).fetchall()
+            traces=db.execute("SELECT id,ac_id,revision,file_path,approved_by,created_at FROM trace_links WHERE run_id=? ORDER BY rowid",(run_id,)).fetchall()
             findings=db.execute("SELECT id,revision,severity,status,detail,created_at FROM findings WHERE run_id=? ORDER BY rowid",(run_id,)).fetchall()
             return {"id":run_id,"title":row["title"],"stage":row["stage"],"version":row["version"],
                     "artifacts":[dict(x) for x in artifacts],"approvals":[dict(x) for x in approvals],
                     "evidence":[dict(x) for x in evidence],"findings":[dict(x) for x in findings],
+                    "trace_links":[dict(x) for x in traces],
                     "events":[{"seq":x["seq"],"type":x["type"],"data":json.loads(x["payload_json"]),"created_at":x["created_at"]} for x in events]}
 
     def request(self, run_id: str) -> dict:

@@ -27,6 +27,11 @@ class ArtifactInput(BaseModel):
     revision: str | None = None
 
 
+class TraceInput(BaseModel):
+    ac_id: str = Field(min_length=1)
+    file_path: str = Field(min_length=1)
+
+
 class ApprovalInput(BaseModel):
     kind: Literal["requirements", "design", "release"]
     actor: str = Field(min_length=1)
@@ -87,6 +92,14 @@ def create_app(db_path: str | Path | None = None, harness: HarnessAdapter | None
     @api.get("/runs/{run_id}")
     def get_run(run_id: str, operator: str = Depends(require_operator)):
         return store.snapshot(run_id)
+
+    @api.get("/runs/{run_id}/traceability")
+    def traceability(run_id: str, operator: str = Depends(require_operator)):
+        return store.traceability(run_id)
+
+    @api.post("/runs/{run_id}/traceability", status_code=201)
+    def link_acceptance(run_id: str, payload: TraceInput, operator: str = Depends(require_operator)):
+        return {"link_id": store.link_acceptance(run_id,payload.ac_id,payload.file_path,operator)}
 
     @api.get("/runs/{run_id}/artifacts/{kind}")
     def get_artifact(run_id: str, kind: str, operator: str = Depends(require_operator)):
