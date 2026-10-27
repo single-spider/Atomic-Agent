@@ -7,9 +7,13 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from .core import Store, WorkflowError
+from .agents import HarnessAdapter
+from .orchestrator import Orchestrator
+from .ui import PAGE
 
 
 class NewRun(BaseModel):
@@ -30,7 +34,7 @@ class ApprovalInput(BaseModel):
     decision: Literal["APPROVED", "REJECTED"]
 
 
-def create_app(db_path: str | Path | None = None) -> FastAPI:
+def create_app(db_path: str | Path | None = None, harness: HarnessAdapter | None = None) -> FastAPI:
     path = str(db_path or os.getenv("ATOMIC_DB_PATH", "/tmp/atomic-agent/atomic.sqlite"))
     store = Store(path)
     operator_token = os.getenv("ATOMIC_OPERATOR_TOKEN", "")
@@ -47,11 +51,29 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return operator_id
     api = FastAPI(title="Atomic-Agent Control Plane", version="0.1.0")
     api.state.store = store
+    orchestrator = Orchestrator(store, harness)
 
     @api.exception_handler(WorkflowError)
     async def handle_workflow_error(_request, exc: WorkflowError):
         from fastapi.responses import JSONResponse
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @api.get("/", response_class=HTMLResponse)
+    def dashboard():
+        return PAGE
+
+    @api.post("/runs/{run_id}/agent/analyze")
+    def agent_analyze(run_id: str, operator: str = Depends(require_operator)):
+        return orchestrator.analyze(run_id, store.request(run_id))
+
+    @api.post("/runs/{run_id}/agent/design")
+    def agent_design(run_id: str, operator: str = Depends(require_operator)):
+        result=orchestrator.design(run_id)
+        return {"artifact_id": result["id"], "artifact_hash": result["content_hash"]}
+
+    @api.post("/runs/{run_id}/agent/propose-tests")
+    def agent_tests(run_id: str, operator: str = Depends(require_operator)):
+        return {"proposals": orchestrator.propose_tests(run_id)}
 
     @api.get("/health")
     def health():

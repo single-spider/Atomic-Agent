@@ -324,6 +324,11 @@ class Store:
                     "evidence":[dict(x) for x in evidence],"findings":[dict(x) for x in findings],
                     "events":[{"seq":x["seq"],"type":x["type"],"data":json.loads(x["payload_json"]),"created_at":x["created_at"]} for x in events]}
 
+    def request(self, run_id: str) -> dict:
+        with self._connect() as db:
+            row=self._run(db,run_id)
+            return json.loads(row["request_json"])
+
     def artifact(self, run_id: str, kind: str) -> dict | None:
         with self._connect() as db:
             self._run(db,run_id)
