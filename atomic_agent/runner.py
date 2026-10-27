@@ -19,7 +19,7 @@ from typing import Any
 
 from .core import WorkflowError
 
-IMAGE_RE = re.compile(r"^[a-z0-9][a-z0-9./_:-]*@sha256:[a-f0-9]{64}$")
+IMAGE_RE = re.compile(r"^(?:sha256:[a-f0-9]{64}|[a-z0-9][a-z0-9./_:-]*@sha256:[a-f0-9]{64})$")
 TOOLS = {
     "pytest": ("python", "-m", "pytest", "-p", "no:cacheprovider", "-q", "tests/golden", "--junitxml=/reports/junit.xml"),
     "ruff": ("ruff", "check", "--output-format", "json", "app"),
@@ -97,7 +97,7 @@ def parse_tool(tool: str, result_code: int, raw: str, reports: Path) -> tuple[bo
 class DockerRunner:
     def __init__(self, image: str, workspace: str | Path):
         if not IMAGE_RE.fullmatch(image):
-            raise WorkflowError("Docker image must be pinned to sha256 digest")
+            raise WorkflowError("Docker image must be pinned to a sha256 image ID or registry digest")
         root=Path(workspace).resolve()
         if not root.is_dir() or root.is_symlink():
             raise WorkflowError("workspace must be a real directory")

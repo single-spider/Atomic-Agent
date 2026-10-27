@@ -65,3 +65,8 @@ def test_dependency_audit_is_bound_to_lock(tmp_path):
     assert not parse_trusted_dependency_audit(record,'c'*64)[0]
     record['dependencies'][0]['vulns']=[{'id':'CVE-SYNTHETIC'}]
     assert not parse_trusted_dependency_audit(record,h)[0]
+
+
+def test_digest_image_id_form_is_accepted(tmp_path):
+    runner=DockerRunner('sha256:'+'a'*64,tmp_path)
+    assert runner.image.startswith('sha256:')
