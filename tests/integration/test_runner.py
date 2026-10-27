@@ -70,3 +70,22 @@ def test_dependency_audit_is_bound_to_lock(tmp_path):
 def test_digest_image_id_form_is_accepted(tmp_path):
     runner=DockerRunner('sha256:'+'a'*64,tmp_path)
     assert runner.image.startswith('sha256:')
+
+
+def test_timeout_requests_docker_container_cleanup(tmp_path):
+    import subprocess
+    def expired(cmd, **kwargs):
+        if cmd[:2]==['docker','run']:
+            index=cmd.index('--cidfile')
+            Path(cmd[index+1]).write_text('a'*64)
+            raise subprocess.TimeoutExpired(cmd=cmd,timeout=1)
+        assert cmd[:3]==['docker','rm','-f']
+        assert cmd[-1]=='a'*64
+        class P:
+            returncode=0
+        return P()
+    with patch('atomic_agent.runner.shutil.which',return_value='/usr/bin/docker'):
+        with patch('atomic_agent.runner.subprocess.run',side_effect=expired) as mock:
+            r=DockerRunner(IMAGE,tmp_path).validate('ruff',timeout=1)
+    assert r.status=='TIMED_OUT'
+    assert mock.call_count==2

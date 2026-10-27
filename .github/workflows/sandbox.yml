@@ -21,3 +21,18 @@ jobs:
         run: |
           IMAGE_ID="$(docker image inspect --format='{{.Id}}' atomic-fixture:ci)"
           python -m atomic_agent.sandbox_probe --image "$IMAGE_ID" --workspace fixtures/customer_profile
+      - name: End-to-end synthetic repair walkthrough (expected NOT_READY without trusted audit)
+        run: |
+          IMAGE_ID="$(docker image inspect --format='{{.Id}}' atomic-fixture:ci)"
+          python -m atomic_agent.demo --image "$IMAGE_ID" --operator "CI-SYNTHETIC-OPERATOR" --approve-synthetic-design > "$RUNNER_TEMP/demo.json"
+          python - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          data=json.loads((Path(os.environ["RUNNER_TEMP"])/"demo.json").read_text())
+          assert data["baseline"]["exit_code"]==1
+          assert data["checks"]["pytest"]["status"]=="COMPLETED"
+          assert data["repair"]["before"] != data["repair"]["after"]
+          assert data["release_recommendation"]["status"]=="NOT_READY"
+          assert any("dependency_audit" in issue for issue in data["release_recommendation"]["problems"])
+          print("PASS synthetic lifecycle: baseline fail, scoped reference repair, passing Pytest, fail-closed release")
+          PYCODE
