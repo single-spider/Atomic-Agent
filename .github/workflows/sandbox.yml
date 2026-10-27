@@ -1,0 +1,23 @@
+name: Development Docker sandbox probes
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  sandbox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install API and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Build development-only tool image
+        run: docker build --file docker/Dockerfile.fixture-dev --tag atomic-fixture:ci .
+      - name: Prove basic container denials and intentional acceptance failure
+        run: |
+          IMAGE_ID="$(docker image inspect --format='{{.Id}}' atomic-fixture:ci)"
+          python -m atomic_agent.sandbox_probe --image "$IMAGE_ID" --workspace fixtures/customer_profile
