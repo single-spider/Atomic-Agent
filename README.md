@@ -2,7 +2,7 @@
 
 **A harness-based, multi-agent SDLC engineering copilot.**
 
-Atomic-Agent is a planned open-source application that takes a feature request through requirements analysis, technical design, implementation, testing, security review, remediation, traceability, and evidence-backed release assessment. The project is at its **documentation and architecture discovery** stage; no working SDLC engine is claimed yet.
+Atomic-Agent is an **experimental local SDLC control-plane MVP** with durable requirement/design/code artifacts, eight typed agent roles, human approvals, deterministic release gates, traceability and a browser dashboard. A frozen synthetic Python API fixture exercises failure, reference remediation and real Docker validation. The project **does not yet execute a live coding harness** or claim full autonomous SDLC/release readiness.
 
 ## Design direction
 
@@ -27,16 +27,46 @@ Start here in order:
 13. [Testing and observability](docs/12-TESTING-OBSERVABILITY.md): platform tests and run evidence.
 14. [Contributing](CONTRIBUTING.md): branch, review, and merge expectations.
 15. [Harness spike contract / ADR-012](docs/13-HARNESS-SPIKE-CONTRACT.md): scoped decisions, fixture, controls, preflight and comparison evidence.
+16. [Fixture implementation](docs/14-SPIKE-FIXTURE.md) and [control plane](docs/15-CONTROL-PLANE.md).
+17. [Agent roles and dashboard](docs/16-AGENT-ORCHESTRATION.md).
+18. [Docker boundary probes](docs/17-SANDBOX-PROBES.md) and [synthetic walkthrough](docs/18-OFFLINE-WALKTHROUGH.md).
+19. [Traceability rules](docs/19-TRACEABILITY.md) and [current MVP status](docs/20-MVP-STATUS.md).
 
 16. [Executable harness fixture and preflight notes](docs/14-SPIKE-FIXTURE.md): synthetic defect, frozen tests, local policy contract checks.
 
+## Quick start
+
+For local developer verification (Python 3.12+), install test dependencies and start the API:
+
+```bash
+python -m pip install -e '.[test]'
+python -m pytest -q tests/unit tests/integration
+python scripts/check_frozen.py
+python scripts/check_baseline.py
+export ATOMIC_OPERATOR_ID=local-reviewer
+export ATOMIC_OPERATOR_TOKEN='replace-with-a-random-local-token'
+uvicorn atomic_agent.api:app --host 127.0.0.1 --port 8000
+```
+
+Open http://127.0.0.1:8000 to use the dashboard. Keep this experimental single-operator API on localhost. For a real-container synthetic demonstration, see [offline walkthrough](docs/18-OFFLINE-WALKTHROUGH.md) and the GitHub Actions Docker job.
+
+## What is implemented
+
+- Versioned SQLite workflow, artifacts, approval gates and event timeline.
+- Human-reviewed criterion-to-code links, mandatory test/security evidence policy and release recommendation.
+- Eight agent role contracts, a replaceable harness interface and a **test-only** deterministic fixture adapter.
+- Restricted Docker validation commands and CI denial probes for the synthetic FastAPI fixture.
+- Known synthetic authorization repair with actual regression testing and a deliberately blocked release when a trusted dependency audit is absent.
+
+[Implementation status and blocking dependencies](docs/20-MVP-STATUS.md) identifies what remains for live end-to-end development. These capabilities are under active development.
+
 ## Current status
 
-- Documentation baseline: **proposed**, subject to maintainer review.
+- Documentation baseline: merged, with new executable code and versioned design decisions.
 - Harness selection: **open**; benchmark candidates before adopting one.
 - Spike planning: **14 scoped resolutions proposed** in ADR-012; runtime selection, UI, productivity baseline and project licensing have explicit remaining dispositions. Exact provider/version pins and execution authorization remain preflight requirements.
 - Harness fixture: **local synthetic baseline with deliberate AC-003 defect** and static policy checks in a proposed implementation PR; no live harness evaluation, isolation enforcement, or runnable SDLC product yet.
-- MVP backend, UI, test tools, and storage: **proposed**, not yet implemented.
+- Local backend, dashboard, persistence and synthetic validation: **implemented as experimental MVP**. End-to-end live model execution remains unimplemented.
 - Production deployment: **out of scope** for the initial demo.
 
 ## Public repository and source handling
