@@ -22,7 +22,7 @@ from .core import WorkflowError
 IMAGE_RE = re.compile(r"^(?:sha256:[a-f0-9]{64}|[a-z0-9][a-z0-9./_:-]*@sha256:[a-f0-9]{64})$")
 TOOLS = {
     "pytest": ("python", "-m", "pytest", "-p", "no:cacheprovider", "-q", "tests/golden", "--junitxml=/reports/junit.xml"),
-    "ruff": ("ruff", "check", "--output-format", "json", "app"),
+    "ruff": ("ruff", "check", "--no-cache", "--output-format", "json", "app"),
     "bandit": ("bandit", "-r", "app", "-f", "json"),
 }
 AC_CASES = {
